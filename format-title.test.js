@@ -41,7 +41,31 @@ describe('formatTitle', () => {
 		expect(result).toBe('[hello] world, [goodbye] moon');
 	});
 
-	it('removes surrounding trimPunctuation', () => {
+	it('ignores partial matches', () => {
+		const result = formatTitle('hello world', {
+			pattern: ['hell'],
+			replacement: 'hi',
+		});
+		expect(result).toBe('hello world');
+	});
+
+	it('ignores partial matches with dashes', () => {
+		const result = formatTitle('hello-world', {
+			pattern: ['hello'],
+			replacement: 'hi',
+		});
+		expect(result).toBe('hello-world');
+	});
+
+	it('ignores pre-punctuated keywords', () => {
+		const result = formatTitle('[hello] world', {
+			pattern: ['hello'],
+			replacement: '<$0>',
+		});
+		expect(result).toBe('[hello] world');
+	});
+
+	it('trims surrounding punctuation', () => {
 		const result = formatTitle('[hello] (world)', {
 			pattern: ['hello', 'world'],
 			replacement: '<$0>',
