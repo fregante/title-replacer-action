@@ -54,6 +54,10 @@ async function run() {
 		if (stats.isDirectory()) {
 			inputs.patterns = fs.readdirSync(inputs.patternPath)
 				.map(file => basename(file).split('.')[0]);
+		} else if (stats.isFile()) {
+			inputs.pattern = parsePattern(fs.readFileSync(inputs.patternPath, 'utf8'));
+		} else {
+			throw new Error(`Invalid pattern path: ${inputs.pattern}`);
 		}
 	}
 
