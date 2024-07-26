@@ -1,0 +1,22 @@
+name: Self
+on:
+  pull_request_target:
+    types: [opened, edited]
+  issues:
+    types: [opened, edited]
+
+jobs:
+  Self:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        name: Local action
+        with:
+          pattern: fix, bug, feat
+          replacement: '`$0`'
+          removePunctuation: true
+          uppercaseFirstLetter: true
+          token: ${{ secrets.GITHUB_TOKEN }}

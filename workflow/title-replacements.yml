@@ -1,0 +1,17 @@
+name: Title cleanup
+
+on:
+  pull_request_target:
+    types: [opened, edited]
+  issues:
+    types: [opened, edited]
+
+jobs:
+  Label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: fregante/title-replacer-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

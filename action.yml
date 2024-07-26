@@ -1,0 +1,33 @@
+name: Title Replacer
+description: Replaces and formats keywords in titles of issues and PRs.
+branding:
+  icon: feather
+  color: yellow
+inputs:
+  pattern:
+    description: "What to search in titles. Comma-separated or line-separated, surrounding spaces are ignored. If it starts with a /, it is treated as a regular expression. (example: fix, bug, feat)"
+    required: true
+  replacement:
+    description: "What to replace the pattern with. Use $0 for the matched pattern, or $1, $2, etc. if you're using a regular expression with groups. (example: '`$0`')"
+    default: ''
+    required: false
+  trimPunctuation:
+    description: |
+      The characters to ignore when replacing the pattern (example: '[]' or true, which means: []{}()<>-:`'")
+    default: ''
+  uppercaseFirstLetter:
+    description: Whether to uppercase the first letter of the title
+    default: true
+  dryRun:
+    description: 'If true, show what changes would be made without actually making them'
+    default: false
+  token:
+    description: 'The automatically-generated token, set this to \$\{\{ secrets.GITHUB_TOKEN \}\}'
+outputs:
+  changed:
+    description: Whether the title was changed
+  newTitle:
+    description: The new title
+runs:
+  using: node20
+  main: distribution/index.js
