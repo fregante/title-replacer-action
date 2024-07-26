@@ -49,6 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      issues: write
     steps:
       - name: Turn keywords into `keywords`
         uses: fregante/title-replacer-action@v1

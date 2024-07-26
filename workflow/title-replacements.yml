@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      issues: write
     steps:
       - uses: fregante/title-replacer-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: fix, fixes, fixed
+          replacement: 'fix: '
