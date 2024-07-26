@@ -27,7 +27,7 @@ Ensure your brand is untarnished by lowercaseness:
 + Lost all files due to Steam
 ```
 
-You can automatically install a [demo workflow](./workflow/labeler.yml) with [ghat](https://github.com/fregante/ghat):
+You can automatically install a [demo workflow](./workflow/title-replacements.yml) with [ghat](https://github.com/fregante/ghat):
 
 ```sh
 npx -y ghat fregante/title-replacer-action/workflow
@@ -57,6 +57,21 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           patterns: alpha, omega
           replacement: '`$0`'
+
+      - name: Turn keywords from file into `keywords`
+        uses: fregante/title-replacer-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          patterns-path: source/list.txt
+          replacement: '($0)'
+
+      - name: Read list of files in directory, use the extension-less names as patterns
+        uses: fregante/title-replacer-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+          patterns-path: source/features
+          replacement: '[$0]'
 
       # The action can be used as many times as needed in a single job
       - uses: fregante/title-replacer-action@v1
