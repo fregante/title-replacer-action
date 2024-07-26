@@ -52,7 +52,7 @@ async function run() {
 	} else if (inputs.patternPath) {
 		const stats = fs.statSync(inputs.patternPath);
 		if (stats.isDirectory()) {
-			inputs.patterns = fs.readdirSync(inputs.patternPath)
+			inputs.pattern = fs.readdirSync(inputs.patternPath)
 				.map(file => path.basename(file).split('.')[0]);
 		} else if (stats.isFile()) {
 			inputs.pattern = parsePattern(fs.readFileSync(inputs.patternPath, 'utf8'));
