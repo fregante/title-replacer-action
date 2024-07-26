@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import process from 'node:process';
+import path from 'node:path';
 import {
 	getInput, getBooleanInput, debug, info, setFailed, setOutput,
 } from '@actions/core';
@@ -10,17 +11,27 @@ const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH));
 
 function getInputs() {
 	const pattern = getInput('pattern');
+	const patternPath = getInput('pattern-path');
+	if (pattern && patternPath) {
+		throw new Error('Both `pattern` and `pattern-path` inputs are provided. Only one is allowed.');
+	}
+
+	if (!pattern && !patternPath) {
+		throw new Error('Neither `pattern` nor `pattern-path` inputs are provided. One is required.');
+	}
+
 	const replacement = getInput('replacement');
 	const trimPunctuation = getInput('trim-punctuation');
 	const uppercaseFirstLetter = getBooleanInput('uppercase-first-letter');
 	const dryRun = getBooleanInput('dry-run');
 	debug(`Received pattern: ${pattern}`);
+	debug(`Received pattern-path: ${patternPath}`);
 	debug(`Received replacement: ${replacement}`);
-	debug(`Received trimPunctuation: ${trimPunctuation}`);
+	debug(`Received trim-punctuation: ${trimPunctuation}`);
 	debug(`Uppercase first letter: ${uppercaseFirstLetter}`);
 	debug(`Dry run: ${dryRun}`);
 	return {
-		pattern, replacement, trimPunctuation, uppercaseFirstLetter, dryRun,
+		pattern, patternPath, replacement, trimPunctuation, uppercaseFirstLetter, dryRun,
 	};
 }
 
@@ -36,7 +47,22 @@ async function run() {
 	const conversation = event.issue || event.pull_request;
 	const inputs = getInputs();
 
-	inputs.pattern = parsePattern(inputs.pattern);
+	if (inputs.pattern) {
+		inputs.pattern = parsePattern(inputs.pattern);
+	} else if (inputs.patternPath) {
+		const stats = fs.statSync(inputs.patternPath);
+		if (stats.isDirectory()) {
+			inputs.patterns = fs.readdirSync(inputs.patternPath)
+				.map(file => path.basename(file).split('.')[0]);
+		} else if (stats.isFile()) {
+			inputs.pattern = parsePattern(fs.readFileSync(inputs.patternPath, 'utf8'));
+		} else {
+			throw new Error(`Invalid pattern path: ${inputs.pattern}`);
+		}
+	}
+
+	debug(`Parsed patterns: ${inputs.pattern}`);
+
 	switch (inputs.trimPunctuation) {
 		case 'false': {
 			inputs.trimPunctuation = '';
