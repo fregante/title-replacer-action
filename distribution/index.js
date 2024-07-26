@@ -56524,7 +56524,7 @@ async function run() {
 		const stats = external_node_fs_namespaceObject.statSync(inputs.patternPath);
 		if (stats.isDirectory()) {
 			inputs.patterns = external_node_fs_namespaceObject.readdirSync(inputs.patternPath)
-				.map(file => (0,external_node_path_namespaceObject.basename)(file).split('.')[0]);
+				.map(file => external_node_path_namespaceObject.basename(file).split('.')[0]);
 		} else if (stats.isFile()) {
 			inputs.pattern = parsePattern(external_node_fs_namespaceObject.readFileSync(inputs.patternPath, 'utf8'));
 		} else {

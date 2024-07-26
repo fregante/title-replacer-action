@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import process from 'node:process';
-import {basename} from 'node:path';
+import path from 'node:path';
 import {
 	getInput, getBooleanInput, debug, info, setFailed, setOutput,
 } from '@actions/core';
@@ -53,7 +53,7 @@ async function run() {
 		const stats = fs.statSync(inputs.patternPath);
 		if (stats.isDirectory()) {
 			inputs.patterns = fs.readdirSync(inputs.patternPath)
-				.map(file => basename(file).split('.')[0]);
+				.map(file => path.basename(file).split('.')[0]);
 		} else if (stats.isFile()) {
 			inputs.pattern = parsePattern(fs.readFileSync(inputs.patternPath, 'utf8'));
 		} else {
