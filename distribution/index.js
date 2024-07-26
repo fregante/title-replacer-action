@@ -56480,9 +56480,9 @@ const index_event = JSON.parse(external_node_fs_namespaceObject.readFileSync(ext
 function getInputs() {
 	const pattern = (0,core.getInput)('pattern');
 	const replacement = (0,core.getInput)('replacement');
-	const trimPunctuation = (0,core.getInput)('trimPunctuation');
-	const uppercaseFirstLetter = (0,core.getBooleanInput)('uppercaseFirstLetter');
-	const dryRun = (0,core.getBooleanInput)('dryRun');
+	const trimPunctuation = (0,core.getInput)('trim-punctuation');
+	const uppercaseFirstLetter = (0,core.getBooleanInput)('uppercase-first-letter');
+	const dryRun = (0,core.getBooleanInput)('dry-run');
 	(0,core.debug)(`Received pattern: ${pattern}`);
 	(0,core.debug)(`Received replacement: ${replacement}`);
 	(0,core.debug)(`Received trimPunctuation: ${trimPunctuation}`);

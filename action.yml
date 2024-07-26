@@ -11,14 +11,14 @@ inputs:
     description: "What to replace the pattern with. Use $0 for the matched pattern, or $1, $2, etc. if you're using a regular expression with groups. (example: '`$0`')"
     default: ''
     required: false
-  trimPunctuation:
+  trim-punctuation:
     description: |
       The characters to ignore when replacing the pattern (example: '[]' or true, which means: []{}()<>-:`'")
     default: ''
-  uppercaseFirstLetter:
+  uppercase-first-letter:
     description: Whether to uppercase the first letter of the title
     default: true
-  dryRun:
+  dry-run:
     description: 'If true, show what changes would be made without actually making them'
     default: false
   token:

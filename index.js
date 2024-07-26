@@ -11,9 +11,9 @@ const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH));
 function getInputs() {
 	const pattern = getInput('pattern');
 	const replacement = getInput('replacement');
-	const trimPunctuation = getInput('trimPunctuation');
-	const uppercaseFirstLetter = getBooleanInput('uppercaseFirstLetter');
-	const dryRun = getBooleanInput('dryRun');
+	const trimPunctuation = getInput('trim-punctuation');
+	const uppercaseFirstLetter = getBooleanInput('uppercase-first-letter');
+	const dryRun = getBooleanInput('dry-run');
 	debug(`Received pattern: ${pattern}`);
 	debug(`Received replacement: ${replacement}`);
 	debug(`Received trimPunctuation: ${trimPunctuation}`);
