@@ -146,4 +146,31 @@ describe('formatTitle', () => {
 		});
 		expect(result).toBe('[hello](123) [world](456) [foo](789)');
 	});
+
+	it('trims punctuation around keyword', () => {
+		const result = formatTitle('hello, world', {
+			pattern: ['hello'],
+			replacement: 'hi',
+			trimPunctuation: ',',
+		});
+		expect(result).toBe('hi world');
+	});
+
+	it('ignores trimPunctuation when a regex is provided', () => {
+		const result = formatTitle('hello, world', {
+			pattern: /hello/,
+			replacement: 'hi',
+			trimPunctuation: ',',
+		});
+		expect(result).toBe('hi, world');
+	});
+
+	it('handles the dash and period in trimPunctuation correctly', () => {
+		const result = formatTitle('a- b. c', {
+			pattern: ['a', 'b', 'c'],
+			replacement: '$0;',
+			trimPunctuation: '>-.',
+		});
+		expect(result).toBe('a; b; c;');
+	});
 });

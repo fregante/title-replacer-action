@@ -1,5 +1,5 @@
 function escapeRegExp(string) {
-	return string.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	return string.replaceAll(/[.*+?^${}()|[\]\\-]/g, '\\$&');
 }
 
 export function parsePattern(pattern) {

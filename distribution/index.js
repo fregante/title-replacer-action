@@ -56422,7 +56422,7 @@ function getApiBaseUrl() {
 
 ;// CONCATENATED MODULE: ./format-title.js
 function escapeRegExp(string) {
-	return string.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	return string.replaceAll(/[.*+?^${}()|[\]\\-]/g, '\\$&');
 }
 
 function parsePattern(pattern) {
