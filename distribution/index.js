@@ -52829,6 +52829,8 @@ var __webpack_exports__ = {};
 const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
 ;// CONCATENATED MODULE: external "node:process"
 const external_node_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:process");
+;// CONCATENATED MODULE: external "node:path"
+const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2186);
 ;// CONCATENATED MODULE: ./node_modules/universal-user-agent/index.js
@@ -56475,21 +56477,32 @@ function formatTitle(title, {pattern, replacement, trimPunctuation, uppercaseFir
 
 
 
+
 const index_event = JSON.parse(external_node_fs_namespaceObject.readFileSync(external_node_process_namespaceObject.env.GITHUB_EVENT_PATH));
 
 function getInputs() {
 	const pattern = (0,core.getInput)('pattern');
+	const patternPath = (0,core.getInput)('pattern-path');
+	if (pattern && patternPath) {
+		throw new Error('Both `pattern` and `pattern-path` inputs are provided. Only one is allowed.');
+	}
+
+	if (!pattern && !patternPath) {
+		throw new Error('Neither `pattern` nor `pattern-path` inputs are provided. One is required.');
+	}
+
 	const replacement = (0,core.getInput)('replacement');
 	const trimPunctuation = (0,core.getInput)('trim-punctuation');
 	const uppercaseFirstLetter = (0,core.getBooleanInput)('uppercase-first-letter');
 	const dryRun = (0,core.getBooleanInput)('dry-run');
 	(0,core.debug)(`Received pattern: ${pattern}`);
+	(0,core.debug)(`Received pattern-path: ${patternPath}`);
 	(0,core.debug)(`Received replacement: ${replacement}`);
-	(0,core.debug)(`Received trimPunctuation: ${trimPunctuation}`);
+	(0,core.debug)(`Received trim-punctuation: ${trimPunctuation}`);
 	(0,core.debug)(`Uppercase first letter: ${uppercaseFirstLetter}`);
 	(0,core.debug)(`Dry run: ${dryRun}`);
 	return {
-		pattern, replacement, trimPunctuation, uppercaseFirstLetter, dryRun,
+		pattern, patternPath, replacement, trimPunctuation, uppercaseFirstLetter, dryRun,
 	};
 }
 
@@ -56505,7 +56518,22 @@ async function run() {
 	const conversation = index_event.issue || index_event.pull_request;
 	const inputs = getInputs();
 
-	inputs.pattern = parsePattern(inputs.pattern);
+	if (inputs.pattern) {
+		inputs.pattern = parsePattern(inputs.pattern);
+	} else if (inputs.patternPath) {
+		const stats = external_node_fs_namespaceObject.statSync(inputs.patternPath);
+		if (stats.isDirectory()) {
+			inputs.patterns = external_node_fs_namespaceObject.readdirSync(inputs.patternPath)
+				.map(file => (0,external_node_path_namespaceObject.basename)(file).split('.')[0]);
+		} else if (stats.isFile()) {
+			inputs.pattern = parsePattern(external_node_fs_namespaceObject.readFileSync(inputs.patternPath, 'utf8'));
+		} else {
+			throw new Error(`Invalid pattern path: ${inputs.pattern}`);
+		}
+	}
+
+	(0,core.debug)(`Parsed patterns: ${inputs.pattern}`);
+
 	switch (inputs.trimPunctuation) {
 		case 'false': {
 			inputs.trimPunctuation = '';
