@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import process from 'node:process';
 import {
-	debug, info, setFailed, setOutput,
+	debug, info, setOutput,
 } from '@actions/core';
 import {Octokit} from '@octokit/action';
 import {formatTitle} from './format-title.js';
@@ -32,7 +32,11 @@ async function run() {
 	const processedInputs = processInputs(inputs);
 	debug(JSON.stringify({inputs, processedInputs}, null, 2));
 
-	if (inputs.allowOverride && await shouldRun('title-replacer', JSON.stringify({inputs}), 1000 * 60 * 5)) {
+	if (inputs.allowOverride && !await shouldRun(
+		'title-replacer',
+		JSON.stringify({inputs}).replaceAll(/[^a-z\d]/g, ''),
+		1000 * 60 * 5, // At most once every 5 minutes
+	)) {
 		info('Skipping due to allow-override');
 		return;
 	}
@@ -66,6 +70,4 @@ async function run() {
 }
 
 // eslint-disable-next-line unicorn/prefer-top-level-await
-run().catch(error => {
-	setFailed(error.message);
-});
+run();

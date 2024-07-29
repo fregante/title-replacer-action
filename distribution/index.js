@@ -102047,16 +102047,19 @@ var cache = __nccwpck_require__(7799);
 
 
 
+
 async function shouldRun(name, key, resetFrequency) {
 	resetFrequency = String(Math.round(Date.now() / resetFrequency));
 	const cachePath = `/tmp/run-memory/${name}`;
-
-	const wasRunBefore = await cache.restoreCache([cachePath], `${resetFrequency}-${key}`);
+	const wasRunBefore = await cache.restoreCache([cachePath], `${resetFrequency}-${key}`, [], {
+		lookupOnly: true,
+	});
 
 	if (wasRunBefore) {
 		return false;
 	}
 
+	(0,external_node_fs_namespaceObject.mkdirSync)(external_node_path_namespaceObject.dirname(cachePath), {recursive: true});
 	(0,external_node_fs_namespaceObject.writeFileSync)(cachePath, '');
 
 	await cache.saveCache([cachePath], resetFrequency);
@@ -102097,7 +102100,11 @@ async function run() {
 	const processedInputs = processInputs(inputs);
 	(0,core.debug)(JSON.stringify({inputs, processedInputs}, null, 2));
 
-	if (inputs.allowOverride && await shouldRun('title-replacer', JSON.stringify({inputs}), 1000 * 60 * 5)) {
+	if (inputs.allowOverride && !await shouldRun(
+		'title-replacer',
+		JSON.stringify({inputs}).replaceAll(/[^a-z\d]/g, ''),
+		1000 * 60 * 5, // At most once every 5 minutes
+	)) {
 		(0,core.info)('Skipping due to allow-override');
 		return;
 	}
@@ -102131,9 +102138,7 @@ async function run() {
 }
 
 // eslint-disable-next-line unicorn/prefer-top-level-await
-run().catch(error => {
-	(0,core.setFailed)(error.message);
-});
+run();
 
 })();
 
