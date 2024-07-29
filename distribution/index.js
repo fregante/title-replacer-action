@@ -50862,6 +50862,14 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 9330:
+/***/ ((module) => {
+
+module.exports = eval("require")("@actions/cache");
+
+
+/***/ }),
+
 /***/ 9491:
 /***/ ((module) => {
 
@@ -56491,8 +56499,9 @@ function getInputs() {
 	const trimPunctuation = (0,core.getInput)('trim-punctuation');
 	const uppercaseFirstLetter = (0,core.getBooleanInput)('uppercase-first-letter');
 	const dryRun = (0,core.getBooleanInput)('dry-run');
+	const allowOverride = (0,core.getBooleanInput)('allow-override');
 	return {
-		pattern, patternPath, replacement, trimPunctuation, uppercaseFirstLetter, dryRun,
+		pattern, patternPath, replacement, trimPunctuation, uppercaseFirstLetter, dryRun, allowOverride,
 	};
 }
 
@@ -56538,7 +56547,31 @@ function processInputs({
 	};
 }
 
+// EXTERNAL MODULE: ./node_modules/@vercel/ncc/dist/ncc/@@notfound.js?@actions/cache
+var cache = __nccwpck_require__(9330);
+;// CONCATENATED MODULE: ./source/run-memory.js
+
+
+
+async function shouldRun(name, key, resetFrequency) {
+	resetFrequency = String(Math.round(Date.now() / resetFrequency));
+	const cachePath = `/tmp/run-memory/${name}`;
+
+	const wasRunBefore = await cache.restoreCache([cachePath], `${resetFrequency}-${key}`);
+
+	if (wasRunBefore) {
+		return false;
+	}
+
+	(0,external_node_fs_namespaceObject.writeFileSync)(cachePath, '');
+
+	await cache.saveCache([cachePath], resetFrequency);
+
+	return true;
+}
+
 ;// CONCATENATED MODULE: ./source/index.js
+
 
 
 
@@ -56569,6 +56602,11 @@ async function run() {
 	const {title, number, inputs} = readEnv();
 	const processedInputs = processInputs(inputs);
 	(0,core.debug)(JSON.stringify({inputs, processedInputs}, null, 2));
+
+	if (inputs.allowOverride && await shouldRun('title-replacer', JSON.stringify({inputs}), 1000 * 60 * 5)) {
+		(0,core.info)('Skipping due to allow-override');
+		return;
+	}
 
 	const newTitle = formatTitle(title, processedInputs);
 	const changeNeeded = title !== newTitle;
