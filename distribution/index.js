@@ -102097,7 +102097,11 @@ async function run() {
 	const processedInputs = processInputs(inputs);
 	(0,core.debug)(JSON.stringify({inputs, processedInputs}, null, 2));
 
-	if (inputs.allowOverride && await shouldRun('title-replacer', JSON.stringify({inputs}), 1000 * 60 * 5)) {
+	if (inputs.allowOverride && await shouldRun(
+		'title-replacer',
+		JSON.stringify({inputs}).replaceAll(/[^a-z\d]/g, ''),
+		1000 * 60 * 5, // At most once every 5 minutes
+	)) {
 		(0,core.info)('Skipping due to allow-override');
 		return;
 	}
