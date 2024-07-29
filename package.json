@@ -2,7 +2,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "ncc build index.js -o distribution --source-map --license licenses.txt",
+		"build": "ncc build source/index.js -o distribution --source-map --license licenses.txt",
 		"test": "xo && vitest run && npm run build"
 	},
 	"xo": {

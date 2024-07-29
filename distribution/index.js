@@ -52829,8 +52829,6 @@ var __webpack_exports__ = {};
 const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
 ;// CONCATENATED MODULE: external "node:process"
 const external_node_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:process");
-;// CONCATENATED MODULE: external "node:path"
-const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2186);
 ;// CONCATENATED MODULE: ./node_modules/universal-user-agent/index.js
@@ -56422,7 +56420,7 @@ function getApiBaseUrl() {
 }
 
 
-;// CONCATENATED MODULE: ./format-title.js
+;// CONCATENATED MODULE: ./source/format-title.js
 function escapeRegExp(string) {
 	return string.replaceAll(/[.*+?^${}()|[\]\\-]/g, '\\$&');
 }
@@ -56470,15 +56468,13 @@ function formatTitle(title, {pattern, replacement, trimPunctuation, uppercaseFir
 	return newTitle;
 }
 
-;// CONCATENATED MODULE: ./index.js
+;// CONCATENATED MODULE: external "node:path"
+const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
+;// CONCATENATED MODULE: ./source/inputs.js
 
 
 
 
-
-
-
-const index_event = JSON.parse(external_node_fs_namespaceObject.readFileSync(external_node_process_namespaceObject.env.GITHUB_EVENT_PATH));
 
 function getInputs() {
 	const pattern = (0,core.getInput)('pattern');
@@ -56495,73 +56491,98 @@ function getInputs() {
 	const trimPunctuation = (0,core.getInput)('trim-punctuation');
 	const uppercaseFirstLetter = (0,core.getBooleanInput)('uppercase-first-letter');
 	const dryRun = (0,core.getBooleanInput)('dry-run');
-	(0,core.debug)(`Received pattern: ${pattern}`);
-	(0,core.debug)(`Received pattern-path: ${patternPath}`);
-	(0,core.debug)(`Received replacement: ${replacement}`);
-	(0,core.debug)(`Received trim-punctuation: ${trimPunctuation}`);
-	(0,core.debug)(`Uppercase first letter: ${uppercaseFirstLetter}`);
-	(0,core.debug)(`Dry run: ${dryRun}`);
 	return {
 		pattern, patternPath, replacement, trimPunctuation, uppercaseFirstLetter, dryRun,
 	};
 }
 
-async function run() {
-	if (!['issues', 'pull_request', 'pull_request_target'].includes(external_node_process_namespaceObject.env.GITHUB_EVENT_NAME)) {
-		throw new Error('Only `issues` and `pull_request` events are supported. Received: ' + external_node_process_namespaceObject.env.GITHUB_EVENT_NAME);
-	}
-
-	if (!['opened', 'edited'].includes(index_event.action)) {
-		throw new Error(`Only types \`opened\` and \`edited\` events are supported. Received: ${external_node_process_namespaceObject.env.GITHUB_EVENT_NAME}.${index_event.action}`);
-	}
-
-	const conversation = index_event.issue || index_event.pull_request;
-	const inputs = getInputs();
-
-	if (inputs.pattern) {
-		inputs.pattern = parsePattern(inputs.pattern);
-	} else if (inputs.patternPath) {
-		const stats = external_node_fs_namespaceObject.statSync(inputs.patternPath);
+function processInputs({
+	pattern, patternPath, trimPunctuation, ...inputs
+}) {
+	if (pattern) {
+		pattern = parsePattern(pattern);
+	} else if (patternPath) {
+		const stats = external_node_fs_namespaceObject.statSync(patternPath);
 		if (stats.isDirectory()) {
-			inputs.pattern = external_node_fs_namespaceObject.readdirSync(inputs.patternPath)
+			pattern = external_node_fs_namespaceObject.readdirSync(patternPath)
 				.map(file => external_node_path_namespaceObject.basename(file).split('.')[0]);
 		} else if (stats.isFile()) {
-			inputs.pattern = parsePattern(external_node_fs_namespaceObject.readFileSync(inputs.patternPath, 'utf8'));
+			pattern = parsePattern(external_node_fs_namespaceObject.readFileSync(patternPath, 'utf8'));
 		} else {
-			throw new Error(`Invalid pattern path: ${inputs.pattern}`);
+			throw new Error(`Invalid pattern path: ${pattern}`);
 		}
 	}
 
-	(0,core.debug)(`Parsed patterns: ${inputs.pattern}`);
-
-	switch (inputs.trimPunctuation) {
-		case 'false': {
-			inputs.trimPunctuation = '';
+	switch (trimPunctuation) {
+		case undefined:
+		case false: {
+			trimPunctuation = '';
 			break;
 		}
 
-		case 'true': {
-			inputs.trimPunctuation = '[]{}()<>-:`\'"';
+		case true: {
+			trimPunctuation = '[]{}()<>-:`\'"';
 			break;
 		}
 
 		default:
 	}
 
-	const newTitle = formatTitle(conversation.title, inputs);
+	// Deduplicate
+	pattern = [...new Set(pattern)];
 
-	if (conversation.title === newTitle) {
+	return {
+		...inputs,
+		pattern,
+		trimPunctuation,
+	};
+}
+
+;// CONCATENATED MODULE: ./source/index.js
+
+
+
+
+
+
+
+const source_event = JSON.parse(external_node_fs_namespaceObject.readFileSync(external_node_process_namespaceObject.env.GITHUB_EVENT_PATH));
+
+function readEnv() {
+	if (!['issues', 'pull_request', 'pull_request_target'].includes(external_node_process_namespaceObject.env.GITHUB_EVENT_NAME)) {
+		throw new Error('Only `issues`, `pull_request`, and `pull_request_target` events are supported. Received: ' + external_node_process_namespaceObject.env.GITHUB_EVENT_NAME);
+	}
+
+	if (!['opened', 'edited'].includes(source_event.action)) {
+		throw new Error(`Only types \`opened\` and \`edited\` events are supported. Received: ${external_node_process_namespaceObject.env.GITHUB_EVENT_NAME}.${source_event.action}`);
+	}
+
+	const conversation = source_event.issue ?? source_event.pull_request;
+	return {
+		title: conversation.title,
+		number: conversation.number,
+		inputs: getInputs(),
+	};
+}
+
+async function run() {
+	const {title, number, inputs} = readEnv();
+	const processedInputs = processInputs(inputs);
+	(0,core.debug)(JSON.stringify({inputs, processedInputs}, null, 2));
+
+	const newTitle = formatTitle(title, processedInputs);
+	const changeNeeded = title !== newTitle;
+	(0,core.setOutput)('title', newTitle);
+	(0,core.setOutput)('changed', changeNeeded);
+
+	(0,core.debug)(`Title: "${newTitle}"`);
+
+	if (title === newTitle) {
 		(0,core.info)('No title changes needed');
-		(0,core.setOutput)('changed', false);
-		(0,core.setOutput)('newTitle', conversation.title);
 		return;
 	}
 
-	(0,core.info)(`Original title: "${conversation.title}"`);
-	(0,core.info)(`Formatted title: "${newTitle}"`);
-
-	(0,core.setOutput)('changed', true);
-	(0,core.setOutput)('newTitle', newTitle);
+	(0,core.info)(`New title: "${newTitle}"`);
 
 	if (inputs.dryRun) {
 		(0,core.info)('Dry run: No changes applied');
@@ -56569,10 +56590,9 @@ async function run() {
 	}
 
 	const octokit = new dist_bundle_Octokit();
-	const issue_number = conversation.number;
 	const [owner, repo] = external_node_process_namespaceObject.env.GITHUB_REPOSITORY.split('/');
 	await octokit.issues.update({
-		owner, repo, issue_number, title: newTitle,
+		owner, repo, issue_number: number, title: newTitle,
 	});
 
 	(0,core.info)('Title updated successfully');
