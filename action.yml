@@ -29,8 +29,8 @@ inputs:
 outputs:
   changed:
     description: Whether the title was changed
-  newTitle:
-    description: The new title
+  title:
+    description: The title after the replacements or the original title if unchanged
 runs:
   using: node20
   main: distribution/index.js
