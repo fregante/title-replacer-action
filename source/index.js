@@ -6,6 +6,7 @@ import {
 import {Octokit} from '@octokit/action';
 import {formatTitle} from './format-title.js';
 import {getInputs, processInputs} from './inputs.js';
+import {shouldRun} from './run-memory.js';
 
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH));
 
@@ -30,6 +31,11 @@ async function run() {
 	const {title, number, inputs} = readEnv();
 	const processedInputs = processInputs(inputs);
 	debug(JSON.stringify({inputs, processedInputs}, null, 2));
+
+	if (inputs.allowOverride && await shouldRun('title-replacer', JSON.stringify({inputs}), 1000 * 60 * 5)) {
+		info('Skipping due to allow-override');
+		return;
+	}
 
 	const newTitle = formatTitle(title, processedInputs);
 	const changeNeeded = title !== newTitle;

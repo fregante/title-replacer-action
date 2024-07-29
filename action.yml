@@ -21,13 +21,16 @@ inputs:
   dry-run:
     description: 'If true, show what changes would be made without actually making them'
     default: false
+  allow-override:
+    description: 'If true, reduces frequency at which it tries to apply the replacements, in order to allow the user to set a specific title even if it matches the pattern. This avoids frustrating user/action loops.'
+    default: true
   token:
     description: 'The automatically-generated token, set this to \$\{\{ secrets.GITHUB_TOKEN \}\}'
 outputs:
   changed:
     description: Whether the title was changed
-  newTitle:
-    description: The new title
+  title:
+    description: The title after the replacements or the original title if unchanged
 runs:
   using: node20
   main: distribution/index.js

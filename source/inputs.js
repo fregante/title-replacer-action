@@ -20,8 +20,9 @@ export function getInputs() {
 	const trimPunctuation = getInput('trim-punctuation');
 	const uppercaseFirstLetter = getBooleanInput('uppercase-first-letter');
 	const dryRun = getBooleanInput('dry-run');
+	const allowOverride = getBooleanInput('allow-override');
 	return {
-		pattern, patternPath, replacement, trimPunctuation, uppercaseFirstLetter, dryRun,
+		pattern, patternPath, replacement, trimPunctuation, uppercaseFirstLetter, dryRun, allowOverride,
 	};
 }
 
