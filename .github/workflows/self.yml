@@ -15,8 +15,7 @@ jobs:
       - uses: ./
         name: Local action
         with:
-          pattern: fix, bug, feat
+          pattern: passiflora, cumulonimbus, amorphophallus
           replacement: '`$0`'
-          removePunctuation: true
-          uppercaseFirstLetter: true
+          trim-punctuation: true
           token: ${{ secrets.GITHUB_TOKEN }}
