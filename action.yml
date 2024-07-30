@@ -22,8 +22,8 @@ inputs:
     description: 'If true, show what changes would be made without actually making them'
     default: false
   allow-override:
-    description: 'If true, reduces frequency at which it tries to apply the replacements, in order to allow the user to set a specific title even if it matches the pattern. This avoids frustrating user/action loops.'
-    default: true
+    description: 'If true, reduces frequency at which it tries to apply the replacements, in order to allow the user to set a specific title even if it matches the pattern. This avoids frustrating user/action loops. NOT WORKING YET'
+    default: false
   token:
     description: 'The automatically-generated token, set this to \$\{\{ secrets.GITHUB_TOKEN \}\}'
 outputs:
