@@ -31,15 +31,26 @@ export function processInputs({
 }) {
 	if (pattern) {
 		pattern = parsePattern(pattern);
+		if (pattern.length === 0) {
+			throw new Error('No patterns found in `pattern`' + (patternPath ? ` or \`pattern-path: "${patternPath}"\`` : ''));
+		}
 	} else if (patternPath) {
 		const stats = fs.statSync(patternPath);
 		if (stats.isDirectory()) {
 			pattern = fs.readdirSync(patternPath)
 				.map(file => path.basename(file).split('.')[0]);
+
+			if (pattern.length === 0) {
+				throw new Error('The directory is empty: ' + patternPath);
+			}
 		} else if (stats.isFile()) {
 			pattern = parsePattern(fs.readFileSync(patternPath, 'utf8'));
+
+			if (pattern.length === 0) {
+				throw new Error('The file is empty: ' + patternPath);
+			}
 		} else {
-			throw new Error(`Invalid pattern path: ${pattern}`);
+			throw new Error(`Invalid pattern path: ${patternPath}`);
 		}
 	}
 

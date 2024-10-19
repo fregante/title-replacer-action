@@ -101956,10 +101956,15 @@ function formatTitle(title, {pattern, replacement, trimPunctuation, uppercaseFir
 	} else {
 		for (const keyword of pattern) {
 			const regex = new RegExp(
-				`(^|\\s)([${escapedPunctuation}]*)(${escapeRegExp(keyword)})([${escapedPunctuation}]*)(\\s|$)`,
+				`(^|\\s)(?:[${escapedPunctuation}]*)(${escapeRegExp(keyword)})(?:[${escapedPunctuation}]*)(\\s|$)`,
 				'gi',
 			);
-			newTitle = newTitle.replace(regex, (match, before, leadingPunct, keywordMatch, trailingPunct, after) => `${before}${replacement.replace('$0', keywordMatch)}${after}`);
+			newTitle = newTitle.replace(regex, (
+				match,
+				before,
+				keywordMatch,
+				after,
+			) => `${before}${replacement.replace('$0', keywordMatch)}${after}`);
 		}
 	}
 
@@ -102004,15 +102009,26 @@ function processInputs({
 }) {
 	if (pattern) {
 		pattern = parsePattern(pattern);
+		if (pattern.length === 0) {
+			throw new Error('No patterns found in `pattern`' + (patternPath ? ` or \`pattern-path: "${patternPath}"\`` : ''));
+		}
 	} else if (patternPath) {
 		const stats = external_node_fs_namespaceObject.statSync(patternPath);
 		if (stats.isDirectory()) {
 			pattern = external_node_fs_namespaceObject.readdirSync(patternPath)
 				.map(file => external_node_path_namespaceObject.basename(file).split('.')[0]);
+
+			if (pattern.length === 0) {
+				throw new Error('The directory is empty: ' + patternPath);
+			}
 		} else if (stats.isFile()) {
 			pattern = parsePattern(external_node_fs_namespaceObject.readFileSync(patternPath, 'utf8'));
+
+			if (pattern.length === 0) {
+				throw new Error('The file is empty: ' + patternPath);
+			}
 		} else {
-			throw new Error(`Invalid pattern path: ${pattern}`);
+			throw new Error(`Invalid pattern path: ${patternPath}`);
 		}
 	}
 
@@ -102098,7 +102114,7 @@ function readEnv() {
 async function run() {
 	const {title, number, inputs} = readEnv();
 	const processedInputs = processInputs(inputs);
-	(0,core.debug)(JSON.stringify({inputs, processedInputs}, null, 2));
+	(0,core.info)(JSON.stringify({inputs, processedInputs}, null, 2));
 
 	if (inputs.allowOverride && !await shouldRun(
 		'title-replacer',
@@ -102109,12 +102125,14 @@ async function run() {
 		return;
 	}
 
+	(0,core.info)('Found patterns: ' + JSON.stringify(processedInputs.pattern));
+
 	const newTitle = formatTitle(title, processedInputs);
 	const changeNeeded = title !== newTitle;
 	(0,core.setOutput)('title', newTitle);
 	(0,core.setOutput)('changed', changeNeeded);
 
-	(0,core.debug)(`Title: "${newTitle}"`);
+	(0,core.info)(`Title: "${newTitle}"`);
 
 	if (title === newTitle) {
 		(0,core.info)('No title changes needed');

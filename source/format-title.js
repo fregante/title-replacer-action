@@ -31,10 +31,15 @@ export function formatTitle(title, {pattern, replacement, trimPunctuation, upper
 	} else {
 		for (const keyword of pattern) {
 			const regex = new RegExp(
-				`(^|\\s)([${escapedPunctuation}]*)(${escapeRegExp(keyword)})([${escapedPunctuation}]*)(\\s|$)`,
+				`(^|\\s)(?:[${escapedPunctuation}]*)(${escapeRegExp(keyword)})(?:[${escapedPunctuation}]*)(\\s|$)`,
 				'gi',
 			);
-			newTitle = newTitle.replace(regex, (match, before, leadingPunct, keywordMatch, trailingPunct, after) => `${before}${replacement.replace('$0', keywordMatch)}${after}`);
+			newTitle = newTitle.replace(regex, (
+				match,
+				before,
+				keywordMatch,
+				after,
+			) => `${before}${replacement.replace('$0', keywordMatch)}${after}`);
 		}
 	}
 
