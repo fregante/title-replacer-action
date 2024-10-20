@@ -11,7 +11,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 	});
 
@@ -21,7 +21,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix', 'feat', 'bug'],
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 	});
 
@@ -31,7 +31,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix', 'feat', 'bug'],
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 	});
 
@@ -41,7 +41,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 	});
 
@@ -51,7 +51,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix', 'feat', 'bug'],
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 	});
 
@@ -61,7 +61,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: filesystemPattern,
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 	});
 
@@ -71,7 +71,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: filesystemPattern,
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 	});
 
@@ -81,7 +81,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: filesystemPattern,
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 	});
 
@@ -98,12 +98,12 @@ describe('processInputs', () => {
 
 	it('accepts empty or false trimPunctuation', () => {
 		const vFalse = processInputs({
-			trimPunctuation: ':',
+			trimPunctuation: false,
 			pattern: 'fix',
 		});
 		expect(vFalse).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: ':',
+			trimPunctuation: false,
 		});
 
 		const vEmpty = processInputs({
@@ -112,7 +112,7 @@ describe('processInputs', () => {
 		});
 		expect(vEmpty).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 
 		const vUndefined = processInputs({
@@ -121,7 +121,7 @@ describe('processInputs', () => {
 		});
 		expect(vUndefined).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: '',
+			trimPunctuation: false,
 		});
 	});
 
@@ -142,5 +142,16 @@ describe('processInputs', () => {
 		expect(() => processInputs({
 			patternPath: 'fixtures/empty-directory',
 		})).toThrow('The directory is empty: fixtures/empty-directory');
+	});
+
+	it('throws when trimPunctuation contains non-punctuation characters', () => {
+		expect(() => processInputs({
+			pattern: 'fix',
+			trimPunctuation: 'trua',
+		})).toThrow('`trim-punctuation` contains non-punctuation characters: trua');
+		expect(() => processInputs({
+			pattern: 'fix',
+			trimPunctuation: 'the',
+		})).toThrow('`trim-punctuation` contains non-punctuation characters: the');
 	});
 });

@@ -2,6 +2,10 @@ function escapeRegExp(string) {
 	return string.replaceAll(/[.*+?^${}()|[\]\\-]/g, '\\$&');
 }
 
+function getEscapedPunctuationGroup(punctuation) {
+	return punctuation ? `(?:[${escapeRegExp(punctuation)}]*)` : '';
+}
+
 export function parsePattern(pattern) {
 	if (pattern.startsWith('/') && pattern.endsWith('/')) {
 		return new RegExp(pattern.slice(1, -1), 'g');
@@ -12,9 +16,15 @@ export function parsePattern(pattern) {
 		.filter(Boolean);
 }
 
-export function formatTitle(title, {pattern, replacement, trimPunctuation, uppercaseFirstLetter}) {
+export function formatTitle(title, {
+	pattern,
+	replacement,
+	punctuation,
+	uppercaseFirstLetter,
+}) {
 	let newTitle = title;
-	const escapedPunctuation = escapeRegExp(trimPunctuation ?? '');
+
+	const escapedPunctuation = getEscapedPunctuationGroup(punctuation);
 
 	if (pattern instanceof RegExp) {
 		newTitle = newTitle.replace(pattern, (...arguments_) => {
@@ -23,7 +33,7 @@ export function formatTitle(title, {pattern, replacement, trimPunctuation, upper
 			let result = replacement;
 			for (let i = 0; i <= groups.length; i++) {
 				const value = i === 0 ? match : (groups[i - 1] || '');
-				result = result.replaceAll(new RegExp('\\$' + i, 'g'), value);
+				result = result.replaceAll(new RegExp(String.raw`\$` + i, 'g'), value);
 			}
 
 			return result;
@@ -31,9 +41,16 @@ export function formatTitle(title, {pattern, replacement, trimPunctuation, upper
 	} else {
 		for (const keyword of pattern) {
 			const regex = new RegExp(
-				`(^|\\s)(?:[${escapedPunctuation}]*)(${escapeRegExp(keyword)})(?:[${escapedPunctuation}]*)(\\s|$)`,
+				String.raw`(^|\s)`
+				+ escapedPunctuation
+				+ '('
+				+ escapeRegExp(keyword)
+				+ ')'
+				+ escapedPunctuation
+				+ String.raw`(\s|$)`,
 				'gi',
 			);
+
 			newTitle = newTitle.replace(regex, (
 				match,
 				before,

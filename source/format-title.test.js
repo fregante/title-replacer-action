@@ -69,7 +69,7 @@ describe('formatTitle', () => {
 		const result = formatTitle('[hello] (world)', {
 			pattern: ['hello', 'world'],
 			replacement: '<$0>',
-			trimPunctuation: '[](),',
+			punctuation: '[](),',
 		});
 		expect(result).toBe('<hello> <world>');
 	});
@@ -175,25 +175,25 @@ describe('formatTitle', () => {
 		const result = formatTitle('hello, world', {
 			pattern: ['hello'],
 			replacement: 'hi',
-			trimPunctuation: ',',
+			punctuation: ',',
 		});
 		expect(result).toBe('hi world');
 	});
 
-	it('ignores trimPunctuation when a regex is provided', () => {
+	it('ignores punctuation when a regex is provided', () => {
 		const result = formatTitle('hello, world', {
 			pattern: /hello/,
 			replacement: 'hi',
-			trimPunctuation: ',',
+			punctuation: ',',
 		});
 		expect(result).toBe('hi, world');
 	});
 
-	it('handles the dash and period in trimPunctuation correctly', () => {
+	it('handles the dash and period in punctuation correctly', () => {
 		const result = formatTitle('a- b. c', {
 			pattern: ['a', 'b', 'c'],
 			replacement: '$0;',
-			trimPunctuation: '>-.',
+			punctuation: '>-.',
 		});
 		expect(result).toBe('a; b; c;');
 	});

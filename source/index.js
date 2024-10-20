@@ -1,7 +1,10 @@
 import fs from 'node:fs';
 import process from 'node:process';
 import {
-	info, setOutput,
+	endGroup,
+	info,
+	setOutput,
+	startGroup,
 } from '@actions/core';
 import {Octokit} from '@octokit/action';
 import {formatTitle} from './format-title.js';
@@ -30,7 +33,9 @@ function readEnv() {
 async function run() {
 	const {title, number, inputs} = readEnv();
 	const processedInputs = processInputs(inputs);
+	startGroup('Inputs');
 	info(JSON.stringify({inputs, processedInputs}, null, 2));
+	endGroup();
 
 	if (inputs.allowOverride && !await shouldRun(
 		'title-replacer',
@@ -40,8 +45,6 @@ async function run() {
 		info('Skipping due to allow-override');
 		return;
 	}
-
-	info('Found patterns: ' + JSON.stringify(processedInputs.pattern));
 
 	const newTitle = formatTitle(title, processedInputs);
 	const changeNeeded = title !== newTitle;
