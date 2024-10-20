@@ -69,7 +69,7 @@ describe('formatTitle', () => {
 		const result = formatTitle('[hello] (world)', {
 			pattern: ['hello', 'world'],
 			replacement: '<$0>',
-			punctuation: '[](),',
+			trimPunctuation: '[](),',
 		});
 		expect(result).toBe('<hello> <world>');
 	});
@@ -175,7 +175,7 @@ describe('formatTitle', () => {
 		const result = formatTitle('hello, world', {
 			pattern: ['hello'],
 			replacement: 'hi',
-			punctuation: ',',
+			trimPunctuation: ',',
 		});
 		expect(result).toBe('hi world');
 	});
@@ -184,7 +184,7 @@ describe('formatTitle', () => {
 		const result = formatTitle('hello, world', {
 			pattern: /hello/,
 			replacement: 'hi',
-			punctuation: ',',
+			trimPunctuation: ',',
 		});
 		expect(result).toBe('hi, world');
 	});
@@ -193,7 +193,7 @@ describe('formatTitle', () => {
 		const result = formatTitle('a- b. c', {
 			pattern: ['a', 'b', 'c'],
 			replacement: '$0;',
-			punctuation: '>-.',
+			trimPunctuation: '>-.',
 		});
 		expect(result).toBe('a; b; c;');
 	});

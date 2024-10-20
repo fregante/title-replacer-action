@@ -19,12 +19,12 @@ export function parsePattern(pattern) {
 export function formatTitle(title, {
 	pattern,
 	replacement,
-	punctuation,
+	trimPunctuation,
 	uppercaseFirstLetter,
 }) {
 	let newTitle = title;
 
-	const escapedPunctuation = getEscapedPunctuationGroup(punctuation);
+	const escapedPunctuation = getEscapedPunctuationGroup(trimPunctuation);
 
 	if (pattern instanceof RegExp) {
 		newTitle = newTitle.replace(pattern, (...arguments_) => {
