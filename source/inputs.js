@@ -55,18 +55,26 @@ export function processInputs({
 	}
 
 	switch (trimPunctuation) {
+		case '':
 		case undefined:
-		case false: {
-			trimPunctuation = '';
+		case false:
+		case 'false': {
+			trimPunctuation = false;
 			break;
 		}
 
-		case true: {
+		case true:
+		case 'true': {
 			trimPunctuation = '[]{}()<>-:`\'"';
 			break;
 		}
 
-		default:
+		default: {
+			const invalid = /[a-z\d]+/i.exec(trimPunctuation);
+			if (invalid) {
+				throw new Error('`trim-punctuation` contains non-punctuation characters: ' + invalid);
+			}
+		}
 	}
 
 	// Deduplicate

@@ -33,6 +33,9 @@ You can automatically install a [demo workflow](./workflow/title-replacements.ym
 npx -y ghat fregante/title-replacer-action/workflow
 ```
 
+> [!NOTE]
+> The action only replaces standalone words unless you provide a regex. If you set `patterns: "fix"`, it won't match `fixed` nor `fix-stuff`. This means `fix:` also won't be matched unless you set `trim-punctuation` to `true` and it's followed by a space.
+
 ## Usage
 
 ```yaml
@@ -69,7 +72,6 @@ jobs:
         uses: fregante/title-replacer-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          
           patterns-path: source/features
           replacement: '[$0]'
 
@@ -85,7 +87,7 @@ jobs:
       - uses: fregante/title-replacer-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          patterns: /^fix(es)?/i
+          patterns: /^fix(es)?/
           replacement: 'fix: '
 ```
 

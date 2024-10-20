@@ -13,7 +13,7 @@ inputs:
     default: ''
   trim-punctuation:
     description: |
-      The characters to ignore when replacing the pattern (example: '[]' or true, which means: []{}()<>-:`'")
+      The characters to ignore when replacing the pattern (example: '[]' or 'true', which means: []{}()<>-:`'")
     default: ''
   uppercase-first-letter:
     description: Whether to uppercase the first letter of the title
