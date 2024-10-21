@@ -19,7 +19,7 @@ function dropPunctuation(character, punctuation) {
 export function formatTitle(title, {
 	pattern,
 	replacement,
-	wrappers = '',
+	trimWrappers = '',
 	uppercaseFirstLetter,
 }) {
 	let newTitle = title;
@@ -51,9 +51,9 @@ export function formatTitle(title, {
 				keywordMatch,
 				after,
 			) => (
-				dropPunctuation(before, wrappers)
+				dropPunctuation(before, trimWrappers)
 				+ replacement.replace('$0', keywordMatch)
-				+ dropPunctuation(after, wrappers)),
+				+ dropPunctuation(after, trimWrappers)),
 			);
 		}
 	}

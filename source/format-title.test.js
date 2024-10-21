@@ -61,7 +61,7 @@ describe('formatTitle', () => {
 		const result = formatTitle('[hello] (world)', {
 			pattern: ['hello', 'world'],
 			replacement: '<$0>',
-			wrappers: '[](),',
+			trimWrappers: '[](),',
 		});
 		expect(result).toBe('<hello> <world>');
 	});
@@ -167,7 +167,7 @@ describe('formatTitle', () => {
 		const result = formatTitle('[hello] world', {
 			pattern: ['hello'],
 			replacement: 'hi',
-			wrappers: '[]',
+			trimWrappers: '[]',
 		});
 		expect(result).toBe('hi world');
 	});
@@ -176,7 +176,7 @@ describe('formatTitle', () => {
 		const result = formatTitle('"hello" world', {
 			pattern: /hello/,
 			replacement: 'hi',
-			wrappers: '""',
+			trimWrappers: '""',
 		});
 		expect(result).toBe('"hi" world');
 	});
@@ -193,7 +193,7 @@ describe('formatTitle', () => {
 		const result = formatTitle('[hello] world', {
 			pattern: ['hello'],
 			replacement: '`$0`',
-			wrappers: '[]',
+			trimWrappers: '[]',
 		});
 		expect(result).toBe('`hello` world');
 	});
@@ -212,5 +212,14 @@ describe('formatTitle', () => {
 			replacement: 'hi',
 		});
 		expect(result).toBe('hi: world');
+	});
+
+	it('should not wrap patterns twice', () => {
+		const result = formatTitle('`hello`', {
+			pattern: ['hello'],
+			replacement: '`$0`',
+			trimWrappers: '`',
+		});
+		expect(result).toBe('`hello`');
 	});
 });
