@@ -102238,10 +102238,6 @@ function escapeRegExp(string) {
 	return string.replaceAll(/[.*+?^${}()|[\]\\-]/g, '\\$&');
 }
 
-function getEscapedPunctuationGroup(punctuation) {
-	return punctuation ? `(?:[${escapeRegExp(punctuation)}]*)` : '';
-}
-
 function parsePattern(pattern) {
 	if (pattern.startsWith('/') && pattern.endsWith('/')) {
 		return new RegExp(pattern.slice(1, -1), 'g');
@@ -102252,15 +102248,17 @@ function parsePattern(pattern) {
 		.filter(Boolean);
 }
 
+function dropPunctuation(character, punctuation) {
+	return punctuation.includes(character) ? '' : character;
+}
+
 function formatTitle(title, {
 	pattern,
 	replacement,
-	trimPunctuation,
+	wrappers = '',
 	uppercaseFirstLetter,
 }) {
 	let newTitle = title;
-
-	const escapedPunctuation = getEscapedPunctuationGroup(trimPunctuation);
 
 	if (pattern instanceof RegExp) {
 		newTitle = newTitle.replace(pattern, (...arguments_) => {
@@ -102277,13 +102275,9 @@ function formatTitle(title, {
 	} else {
 		for (const keyword of pattern) {
 			const regex = new RegExp(
-				String.raw`(^|\s)`
-				+ escapedPunctuation
-				+ '('
+				String.raw`(^|[^-_])\b(`
 				+ escapeRegExp(keyword)
-				+ ')'
-				+ escapedPunctuation
-				+ String.raw`(\s|$)`,
+				+ String.raw`)\b([^-_]|$)`,
 				'gi',
 			);
 
@@ -102292,7 +102286,11 @@ function formatTitle(title, {
 				before,
 				keywordMatch,
 				after,
-			) => `${before}${replacement.replace('$0', keywordMatch)}${after}`);
+			) => (
+				dropPunctuation(before, wrappers)
+				+ replacement.replace('$0', keywordMatch)
+				+ dropPunctuation(after, wrappers)),
+			);
 		}
 	}
 
@@ -102323,17 +102321,17 @@ function getInputs() {
 	}
 
 	const replacement = (0,core.getInput)('replacement');
-	const trimPunctuation = (0,core.getInput)('trim-punctuation');
+	const trimWrappers = (0,core.getInput)('trim-wrappers');
 	const uppercaseFirstLetter = (0,core.getBooleanInput)('uppercase-first-letter');
 	const dryRun = (0,core.getBooleanInput)('dry-run');
 	const allowOverride = (0,core.getBooleanInput)('allow-override');
 	return {
-		pattern, patternPath, replacement, trimPunctuation, uppercaseFirstLetter, dryRun, allowOverride,
+		pattern, patternPath, replacement, trimWrappers, uppercaseFirstLetter, dryRun, allowOverride,
 	};
 }
 
 function processInputs({
-	pattern, patternPath, trimPunctuation, ...inputs
+	pattern, patternPath, trimWrappers, ...inputs
 }) {
 	if (pattern) {
 		pattern = parsePattern(pattern);
@@ -102360,25 +102358,29 @@ function processInputs({
 		}
 	}
 
-	switch (trimPunctuation) {
+	if (pattern instanceof RegExp && trimWrappers) {
+		throw new Error('`trim-wrappers` can\'t be used when pattern is a regular expression. Remove the `trim-wrappers` input.');
+	}
+
+	switch (trimWrappers) {
 		case '':
 		case undefined:
 		case false:
 		case 'false': {
-			trimPunctuation = false;
+			trimWrappers = false;
 			break;
 		}
 
 		case true:
 		case 'true': {
-			trimPunctuation = '[]{}()<>-:`\'"';
+			trimWrappers = '[]{}()<>`\'"';
 			break;
 		}
 
 		default: {
-			const invalid = /[a-z\d]+/i.exec(trimPunctuation);
+			const invalid = /[a-z\d]+/i.exec(trimWrappers);
 			if (invalid) {
-				throw new Error('`trim-punctuation` contains non-punctuation characters: ' + invalid);
+				throw new Error('`trim-wrappers` contains unsupported word characters: ' + invalid);
 			}
 		}
 	}
@@ -102389,7 +102391,7 @@ function processInputs({
 	return {
 		...inputs,
 		pattern,
-		trimPunctuation,
+		trimWrappers,
 	};
 }
 
