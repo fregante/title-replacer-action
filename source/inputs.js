@@ -17,17 +17,17 @@ export function getInputs() {
 	}
 
 	const replacement = getInput('replacement');
-	const trimPunctuation = getInput('trim-punctuation');
+	const trimWrappers = getInput('trim-wrappers');
 	const uppercaseFirstLetter = getBooleanInput('uppercase-first-letter');
 	const dryRun = getBooleanInput('dry-run');
 	const allowOverride = getBooleanInput('allow-override');
 	return {
-		pattern, patternPath, replacement, trimPunctuation, uppercaseFirstLetter, dryRun, allowOverride,
+		pattern, patternPath, replacement, trimWrappers, uppercaseFirstLetter, dryRun, allowOverride,
 	};
 }
 
 export function processInputs({
-	pattern, patternPath, trimPunctuation, ...inputs
+	pattern, patternPath, trimWrappers, ...inputs
 }) {
 	if (pattern) {
 		pattern = parsePattern(pattern);
@@ -54,25 +54,29 @@ export function processInputs({
 		}
 	}
 
-	switch (trimPunctuation) {
+	if (pattern instanceof RegExp && trimWrappers) {
+		throw new Error('`trim-wrappers` can\'t be used when pattern is a regular expression. Remove the `trim-wrappers` input.');
+	}
+
+	switch (trimWrappers) {
 		case '':
 		case undefined:
 		case false:
 		case 'false': {
-			trimPunctuation = false;
+			trimWrappers = false;
 			break;
 		}
 
 		case true:
 		case 'true': {
-			trimPunctuation = '[]{}()<>-:`\'"';
+			trimWrappers = '[]{}()<>`\'"';
 			break;
 		}
 
 		default: {
-			const invalid = /[a-z\d]+/i.exec(trimPunctuation);
+			const invalid = /[a-z\d]+/i.exec(trimWrappers);
 			if (invalid) {
-				throw new Error('`trim-punctuation` contains non-punctuation characters: ' + invalid);
+				throw new Error('`trim-wrappers` contains unsupported word characters: ' + invalid);
 			}
 		}
 	}
@@ -83,6 +87,6 @@ export function processInputs({
 	return {
 		...inputs,
 		pattern,
-		trimPunctuation,
+		trimWrappers,
 	};
 }

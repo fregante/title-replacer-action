@@ -18,5 +18,5 @@ jobs:
         with:
           pattern: passiflora, cumulonimbus, amorphophallus
           replacement: '`$0`'
-          trim-punctuation: true
+          trim-wrappers: true
           token: ${{ secrets.GITHUB_TOKEN }}
