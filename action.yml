@@ -9,7 +9,10 @@ inputs:
   pattern-path:
     description: The path to read the patterns from. It can be a file (comma-separated or line-separated) or a directory, where all the file *names* will be used (without the extension)
   replacement:
-    description: "What to replace the pattern with. Use $0 for the matched pattern, or $1, $2, etc. if you're using a regular expression with groups. (example: '`$0`')"
+    description: |
+      What to replace the pattern with. Use $0 for the matched pattern, or $1, $2, etc. if you're using a regular expression with groups. (example: '`$0`')
+
+      Note that if you use this action to wrap keywords like '`$0`', you should also use `trim-wrappers: true` or else keywords will be wrapped twice.
     default: ''
   trim-wrappers:
     description: |
