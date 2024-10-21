@@ -34,7 +34,7 @@ npx -y ghat fregante/title-replacer-action/workflow
 ```
 
 > [!NOTE]
-> The action only replaces standalone words unless you provide a regex. If you set `patterns: "fix"`, it won't match `fixed` nor `fix-stuff`. This means `fix:` also won't be matched unless you set `trim-punctuation` to `true` and it's followed by a space.
+> The action only replaces standalone words unless you provide a regex. If you set `patterns: "fix"`, it won't match `fixed` nor `fix-stuff`.
 
 ## Usage
 
@@ -60,6 +60,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           patterns: alpha, omega
           replacement: '`$0`'
+          trim-wrappers: true
 
       - name: Turn keywords from file into `keywords`
         uses: fregante/title-replacer-action@v1

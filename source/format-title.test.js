@@ -57,19 +57,11 @@ describe('formatTitle', () => {
 		expect(result).toBe('hello-world');
 	});
 
-	it('ignores pre-punctuated keywords', () => {
-		const result = formatTitle('[hello] world', {
-			pattern: ['hello'],
-			replacement: '<$0>',
-		});
-		expect(result).toBe('[hello] world');
-	});
-
-	it('trims surrounding punctuation', () => {
+	it('trims wrappers', () => {
 		const result = formatTitle('[hello] (world)', {
 			pattern: ['hello', 'world'],
 			replacement: '<$0>',
-			trimPunctuation: '[](),',
+			wrappers: '[](),',
 		});
 		expect(result).toBe('<hello> <world>');
 	});
@@ -171,30 +163,54 @@ describe('formatTitle', () => {
 		expect(result).toBe('[hello](123) [world](456) [foo](789)');
 	});
 
-	it('trims punctuation around keyword', () => {
-		const result = formatTitle('hello, world', {
+	it('trims wrappers around keyword', () => {
+		const result = formatTitle('[hello] world', {
 			pattern: ['hello'],
 			replacement: 'hi',
-			trimPunctuation: ',',
+			wrappers: '[]',
 		});
 		expect(result).toBe('hi world');
 	});
 
-	it('ignores punctuation when a regex is provided', () => {
-		const result = formatTitle('hello, world', {
+	it('ignores wrappers when a regex is provided', () => {
+		const result = formatTitle('"hello" world', {
 			pattern: /hello/,
 			replacement: 'hi',
-			trimPunctuation: ',',
+			wrappers: '""',
 		});
-		expect(result).toBe('hi, world');
+		expect(result).toBe('"hi" world');
 	});
 
-	it('handles the dash and period in punctuation correctly', () => {
-		const result = formatTitle('a- b. c', {
-			pattern: ['a', 'b', 'c'],
-			replacement: '$0;',
-			trimPunctuation: '>-.',
+	it('matches patterns with wrappers and it preserves them', () => {
+		const result = formatTitle('"hello" world', {
+			pattern: ['hello'],
+			replacement: 'hi',
 		});
-		expect(result).toBe('a; b; c;');
+		expect(result).toBe('"hi" world');
+	});
+
+	it('matches patterns with wrappers and it drops them', () => {
+		const result = formatTitle('[hello] world', {
+			pattern: ['hello'],
+			replacement: '`$0`',
+			wrappers: '[]',
+		});
+		expect(result).toBe('`hello` world');
+	});
+
+	it('ignores patterns followed by dashes', () => {
+		const result = formatTitle('hello-world', {
+			pattern: ['hello'],
+			replacement: 'hi',
+		});
+		expect(result).toBe('hello-world');
+	});
+
+	it('preserves colons following patterns', () => {
+		const result = formatTitle('hello: world', {
+			pattern: ['hello'],
+			replacement: 'hi',
+		});
+		expect(result).toBe('hi: world');
 	});
 });

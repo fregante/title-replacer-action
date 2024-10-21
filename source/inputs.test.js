@@ -11,7 +11,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 	});
 
@@ -21,7 +21,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix', 'feat', 'bug'],
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 	});
 
@@ -31,7 +31,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix', 'feat', 'bug'],
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 	});
 
@@ -41,7 +41,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 	});
 
@@ -51,7 +51,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: ['fix', 'feat', 'bug'],
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 	});
 
@@ -61,7 +61,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: filesystemPattern,
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 	});
 
@@ -71,7 +71,7 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: filesystemPattern,
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 	});
 
@@ -81,47 +81,47 @@ describe('processInputs', () => {
 		});
 		expect(result).toEqual({
 			pattern: filesystemPattern,
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 	});
 
-	it('accepts trimPunctuation', () => {
+	it('accepts trimWrappers', () => {
 		const result = processInputs({
-			trimPunctuation: ':',
+			trimWrappers: ':',
 			pattern: 'fix',
 		});
 		expect(result).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: ':',
+			trimWrappers: ':',
 		});
 	});
 
-	it('accepts empty or false trimPunctuation', () => {
+	it('accepts empty or false trimWrappers', () => {
 		const vFalse = processInputs({
-			trimPunctuation: false,
+			trimWrappers: false,
 			pattern: 'fix',
 		});
 		expect(vFalse).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 
 		const vEmpty = processInputs({
-			trimPunctuation: '',
+			trimWrappers: '',
 			pattern: 'fix',
 		});
 		expect(vEmpty).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 
 		const vUndefined = processInputs({
-			trimPunctuation: undefined,
+			trimWrappers: undefined,
 			pattern: 'fix',
 		});
 		expect(vUndefined).toEqual({
 			pattern: ['fix'],
-			trimPunctuation: false,
+			trimWrappers: false,
 		});
 	});
 
@@ -144,14 +144,14 @@ describe('processInputs', () => {
 		})).toThrow('The directory is empty: fixtures/empty-directory');
 	});
 
-	it('throws when trimPunctuation contains non-punctuation characters', () => {
+	it('throws when trimWrappers contains non-punctuation characters', () => {
 		expect(() => processInputs({
 			pattern: 'fix',
-			trimPunctuation: 'trua',
-		})).toThrow('`trim-punctuation` contains non-punctuation characters: trua');
+			trimWrappers: 'trua',
+		})).toThrow('`trim-wrappers` contains unsupported word characters: trua');
 		expect(() => processInputs({
 			pattern: 'fix',
-			trimPunctuation: 'the',
-		})).toThrow('`trim-punctuation` contains non-punctuation characters: the');
+			trimWrappers: 'the',
+		})).toThrow('`trim-wrappers` contains unsupported word characters: the');
 	});
 });

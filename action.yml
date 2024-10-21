@@ -11,9 +11,12 @@ inputs:
   replacement:
     description: "What to replace the pattern with. Use $0 for the matched pattern, or $1, $2, etc. if you're using a regular expression with groups. (example: '`$0`')"
     default: ''
-  trim-punctuation:
+  trim-wrappers:
     description: |
-      The characters to ignore when replacing the pattern (example: '[]' or 'true', which means: []{}()<>-:`'")
+      The surrounding characters to trim when replacing the pattern, for example the replacement can drop the quotes in `"hippo"` when the pattern is just hippo.
+
+      Example: '[]{}"'
+      Example: 'true' means ()[]{}"'`<>
     default: ''
   uppercase-first-letter:
     description: Whether to uppercase the first letter of the title
